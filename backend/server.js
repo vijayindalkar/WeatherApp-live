@@ -9,8 +9,16 @@ const io = socketIo(server);
 
 const API_KEY = "467777c984c3a6ebb68bbc97a3367168";
 
+async function getLocationName(lat, lon) {
+  return "Unknown location";
+}
+
 app.post("/api/weather", async (req, res) => {
   const { latitude, longitude } = req.body;
+
+  if (!latitude || !longitude) {
+    return res.status(400).json({ error: "Missing location data" });
+  }
 
   try {
     const response = await axios.get(
@@ -26,7 +34,6 @@ app.post("/api/weather", async (req, res) => {
     const conditions =
       weather && weather.length > 0 ? weather[0].description : "";
 
-    
     res.json({ location, temperature, conditions });
   } catch (error) {
     console.error("Error fetching weather data:", error.message);
@@ -36,8 +43,7 @@ app.post("/api/weather", async (req, res) => {
 
 io.on("connection", (socket) => {
   console.log("Client connected");
-
-  const fetchWeatherData = async () => {
+  const fetchAndEmitWeather = async () => {
     try {
       const response = await axios.get(
         `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
@@ -52,23 +58,25 @@ io.on("connection", (socket) => {
       const conditions =
         weather && weather.length > 0 ? weather[0].description : "";
 
-      
       socket.emit("weatherUpdate", { location, temperature, conditions });
     } catch (error) {
       console.error("Error fetching weather data:", error.message);
     }
   };
 
+  fetchAndEmitWeather();
 
-  fetchWeatherData();
-  setInterval(fetchWeatherData, 30000);
+  const intervalId = setInterval(fetchAndEmitWeather, 30000);
 
-socket.on("disconnect", () => {
+  socket.on("disconnect", () => {
     console.log("Client disconnected");
+    clearInterval(intervalId);
   });
 });
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// const PORT = process.env.PORT || 3000;
+// server.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
+
+app.listen(3000)
