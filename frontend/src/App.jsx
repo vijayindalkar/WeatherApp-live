@@ -130,7 +130,7 @@ function WeatherApp() {
       );
     }
 
-    return null; // Handle initial state or no data scenario
+    return null; 
   }, [weather, toDateFunction]);
 
   return (

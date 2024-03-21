@@ -34,11 +34,9 @@ app.post("/api/weather", async (req, res) => {
   }
 });
 
-// Establish WebSocket connection for real-time updates
 io.on("connection", (socket) => {
   console.log("Client connected");
 
-  // Fetch weather data every 30 seconds and emit to client
   const fetchWeatherData = async () => {
     try {
       const response = await axios.get(
@@ -61,12 +59,11 @@ io.on("connection", (socket) => {
     }
   };
 
-  // Call fetchWeatherData initially and then every 30 seconds
+
   fetchWeatherData();
   setInterval(fetchWeatherData, 30000);
 
-  // Disconnect event
-  socket.on("disconnect", () => {
+socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
 });
