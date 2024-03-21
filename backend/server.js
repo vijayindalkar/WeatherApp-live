@@ -26,7 +26,7 @@ app.post("/api/weather", async (req, res) => {
     const conditions =
       weather && weather.length > 0 ? weather[0].description : "";
 
-    // Sending weather data as response
+    
     res.json({ location, temperature, conditions });
   } catch (error) {
     console.error("Error fetching weather data:", error.message);
@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
       const conditions =
         weather && weather.length > 0 ? weather[0].description : "";
 
-      // Emitting weather data to client
+      
       socket.emit("weatherUpdate", { location, temperature, conditions });
     } catch (error) {
       console.error("Error fetching weather data:", error.message);
